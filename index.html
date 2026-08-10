@@ -43,7 +43,8 @@
     .success-banner { background: #d4edda; border: 0.5px solid #28a745; color: #155724; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; font-weight: 500; }
     .error { color: #8b0000; font-size: 12px; margin-bottom: 12px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 8px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 8px; position: relative; }
+    .top-bar > div:first-child { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 8px; }
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .modal { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
     .modal-buttons { display: flex; gap: 8px; margin-top: 20px; }
@@ -486,13 +487,11 @@
           <div className="container">
             <div className="top-bar">
               <div>
-                <h2>Family Expense Tracker</h2>
-                <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
-              </div>
-              <div className="desktop-buttons">
-                <button onClick={() => setShowSettingsModal(true)}>Edit</button>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', gap: '8px' }}>
+                  <div> 
+                    <h2>Family Expense Tracker</h2>
+                    <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
+                  </div>
               <div className="gear-menu">
                 <button className="gear-btn" onClick={() => setShowGearMenu(!showGearMenu)}>⋮</button>
                 {showGearMenu && (
