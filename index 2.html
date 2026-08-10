@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Expense Tracker</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    input, select, textarea, button { font-family: inherit; }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 0.5px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+    textarea { min-height: 50px; resize: vertical; }
+    button {
+      padding: 10px 12px;
+      border: 0.5px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      background: white;
+      transition: all 0.2s;
+    }
+    button:hover { background: #f0f0f0; }
+    button.primary {
+      background: #5c6ac4;
+      color: white;
+      border-color: #5c6ac4;
+    }
+    button.primary:hover { background: #4c5ab4; }
+    button.danger {
+      background: #f5a5a5;
+      color: #8b0000;
+      border-color: #f5a5a5;
+    }
+    button.success {
+      background: #a5d5a5;
+      color: #004d00;
+      border-color: #a5d5a5;
+    }
+    h2 { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+    h3 { font-size: 13px; font-weight: 500; margin: 12px 0 8px; }
+    .card {
+      background: white;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 0.5px solid #e0e0e0;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 8px 12px;
+      background: transparent;
+      border: 0.5px solid transparent;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      color: #666;
+    }
+    .tab-btn.active {
+      background: white;
+      border-color: #ccc;
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+    .balance-card {
+      background: white;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .balance-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+    .balance-label { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .balance-amount { font-size: 18px; font-weight: 500; }
+    .warning-banner {
+      background: #fff3cd;
+      border: 0.5px solid #ffc107;
+      color: #856404;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .success-banner {
+      background: #d4edda;
+      border: 0.5px solid #28a745;
+      color: #155724;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .expense-item {
+      background: white;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .expense-content { flex: 1; }
+    .expense-title { font-weight: 500; font-size: 13px; margin-bottom: 2px; }
+    .expense-desc { font-size: 11px; color: #666; margin-bottom: 2px; }
+    .expense-date { font-size: 11px; color: #999; }
+    .expense-actions {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .expense-actions button { padding: 4px 8px; font-size: 11px; }
+    .login-form { max-width: 400px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+    .login-form h2 { margin-bottom: 24px; text-align: left; }
+    .login-form .form-group { text-align: left; }
+    .setup-form { max-width: 500px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .helper-text { font-size: 11px; color: #999; margin-top: 4px; font-style: italic; }
+    .receipt-preview {
+      font-size: 11px;
+      color: #666;
+      margin-top: 6px;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .receipt-preview a {
+      color: #5c6ac4;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .receipt-preview a:hover { text-decoration: underline; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .top-bar-left h2 { margin-bottom: 0; }
+    .top-bar-left p { font-size: 12px; color: #666; margin: 4px 0 0 0; }
+    .top-bar-right {
+      display: flex;
+      gap: 8px;
+    }
+    .logout-btn { 
+      padding: 6px 10px; 
+      font-size: 11px; 
+      background: #f0f0f0; 
+      border: 0.5px solid #d0d0d0;
+    }
+    .edit-btn { 
+      padding: 6px 10px; 
+      font-size: 11px; 
+      background: #f0f0f0; 
+      border: 0.5px solid #d0d0d0;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin-bottom: 16px; }
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .modal-buttons button { flex: 1; }
+    .children-list {
+      background: #f9f9f9;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .child-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: flex-end;
+    }
+    .child-input-group input { flex: 1; margin-bottom: 0; }
+    .child-input-group button { padding: 8px 10px; font-size: 11px; min-width: 50px; }
+    .add-child-btn { margin-top: 8px; }
+    .login-error { color: #8b0000; font-size: 12px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [expenses, setExpenses] = useState([]);
+      const [recurringRules, setRecurringRules] = useState([]);
+      const [payments, setPayments] = useState([]);
+      const [parent1Name, setParent1Name] = useState('');
+      const [parent2Name, setParent2Name] = useState('');
+      const [parent1Email, setParent1Email] = useState('');
+      const [parent2Email, setParent2Email] = useState('');
+      const [children, setChildren] = useState(['']);
+      const [currentUser, setCurrentUser] = useState('');
+      const [setupDone, setSetupDone] = useState(false);
+      const [activeTab, setActiveTab] = useState('expenses');
+      const [loginEmail, setLoginEmail] = useState('');
+      const [loginError, setLoginError] = useState('');
+      const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+      const [settingsParent1Name, setSettingsParent1Name] = useState('');
+      const [settingsParent2Name, setSettingsParent2Name] = useState('');
+      const [settingsParent1Email, setSettingsParent1Email] = useState('');
+      const [settingsParent2Email, setSettingsParent2Email] = useState('');
+      const [settingsChildren, setSettingsChildren] = useState([]);
+
+      const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
+      const [formAmount, setFormAmount] = useState('');
+      const [formCategory, setFormCategory] = useState('activities');
+      const [formPaidBy, setFormPaidBy] = useState('');
+      const [formNotes, setFormNotes] = useState('');
+      const [formReceipt, setFormReceipt] = useState(null);
+      const [formReceiptName, setFormReceiptName] = useState('');
+      const [editing, setEditing] = useState(null);
+      const [formChild, setFormChild] = useState('');
+
+      const [recurringAmount, setRecurringAmount] = useState('');
+      const [recurringCategory, setRecurringCategory] = useState('activities');
+      const [recurringPaidBy, setRecurringPaidBy] = useState('');
+      const [recurringChild, setRecurringChild] = useState('');
+      const [recurringDescription, setRecurringDescription] = useState('');
+      const [recurringFrequency, setRecurringFrequency] = useState('monthly');
+      const [recurringStartDate, setRecurringStartDate] = useState(new Date().toISOString().split('T')[0]);
+      const [editingRecurring, setEditingRecurring] = useState(null);
+
+      useEffect(() => {
+        const loadData = async () => {
+          try {
+            const stored = localStorage.getItem('coparenting:enhanced');
+            if (stored) {
+              const data = JSON.parse(stored);
+              setExpenses(data.expenses || []);
+              setPayments(data.payments || []);
+              setRecurringRules(data.recurringRules || []);
+              setParent1Name(data.parent1Name || '');
+              setParent2Name(data.parent2Name || '');
+              setParent1Email(data.parent1Email || '');
+              setParent2Email(data.parent2Email || '');
+              setChildren(data.children || ['']);
+              setSetupDone(true);
+            }
+          } catch (err) {
+            console.log('First load');
+          }
+        };
+        loadData();
+      }, []);
+
+      useEffect(() => {
+        if (expenses.length > 0 || recurringRules.length > 0) {
+          generateRecurringExpenses();
+        }
+      }, [recurringRules]);
+
+      const generateRecurringExpenses = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+
+        let newExpenses = [...expenses];
+        let anyGenerated = false;
+
+        recurringRules.forEach(rule => {
+          if (!rule.active) return;
+
+          const lastGenerated = rule.lastGenerated ? new Date(rule.lastGenerated) : null;
+          if (lastGenerated) lastGenerated.setHours(0, 0, 0, 0);
+
+          let shouldGenerate = false;
+          const startDate = new Date(rule.startDate);
+          startDate.setHours(0, 0, 0, 0);
+
+          if (today >= startDate) {
+            if (!lastGenerated || lastGenerated < today) {
+              if (rule.frequency === 'daily') {
+                shouldGenerate = true;
+              } else if (rule.frequency === 'weekly') {
+                const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+                shouldGenerate = daysDiff % 7 === 0;
+              } else if (rule.frequency === 'monthly') {
+                shouldGenerate = today.getDate() === startDate.getDate();
+              } else if (rule.frequency === 'yearly') {
+                shouldGenerate = today.getMonth() === startDate.getMonth() && today.getDate() === startDate.getDate();
+              }
+            }
+          }
+
+          if (shouldGenerate) {
+            const newExpense = {
+              id: `${rule.id}-${todayStr}`,
+              date: todayStr,
+              category: rule.category,
+              amount: rule.amount,
+              paidBy: rule.paidBy,
+              notes: `Auto-generated from recurring rule`,
+              receiptData: null,
+              receiptName: '',
+              child: rule.child,
+              addedBy: currentUser || rule.createdBy,
+              addedAt: new Date().toISOString(),
+              recurringRuleId: rule.id
+            };
+
+            const exists = newExpenses.some(ex => ex.id === newExpense.id);
+            if (!exists) {
+              newExpenses.push(newExpense);
+              anyGenerated = true;
+            }
+          }
+        });
+
+        if (anyGenerated) {
+          newExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+          setExpenses(newExpenses);
+          saveData(newExpenses, recurringRules);
+        }
+      };
+
+      const saveData = async (updatedExpenses, updatedRecurring) => {
+        try {
+          localStorage.setItem('coparenting:enhanced', JSON.stringify({
+            expenses: updatedExpenses,
+            payments,
+            recurringRules: updatedRecurring || recurringRules,
+            parent1Name,
+            parent2Name,
+            parent1Email,
+            parent2Email,
+            children,
+            lastUpdated: new Date().toISOString()
+          }));
+        } catch (err) {
+          console.error('Storage error:', err);
+        }
+      };
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        setLoginError('');
+
+        if (!loginEmail) {
+          setLoginError('Please enter your email');
+          return;
+        }
+
+        if (setupDone && loginEmail === parent1Email) {
+          setCurrentUser(parent1Email);
+          setLoginEmail('');
+        } else if (setupDone && loginEmail === parent2Email) {
+          setCurrentUser(parent2Email);
+          setLoginEmail('');
+        } else if (!setupDone && loginEmail !== parent1Email && loginEmail !== parent2Email) {
+          setParent1Email(loginEmail);
+        } else {
+          setLoginError('Email not recognized. Please check and try again.');
+        }
+      };
+
+      const handleSetupComplete = () => {
+        if (!parent1Name || !parent2Name || !parent1Email || !parent2Email || !children.filter(c => c.trim()).length) {
+          alert('Please fill in all required fields and at least one child name');
+          return;
+        }
+        const cleanedChildren = children.filter(c => c.trim());
+        setChildren(cleanedChildren);
+        setSetupDone(true);
+        saveData([], []);
+        setCurrentUser(parent1Email);
+        setLoginEmail('');
+      };
+
+      const openSettingsModal = () => {
+        setSettingsParent1Name(parent1Name);
+        setSettingsParent2Name(parent2Name);
+        setSettingsParent1Email(parent1Email);
+        setSettingsParent2Email(parent2Email);
+        setSettingsChildren([...children]);
+        setShowSettingsModal(true);
+      };
+
+      const handleSaveSettings = () => {
+        if (!settingsParent1Name || !settingsParent2Name || !settingsParent1Email || !settingsParent2Email || !settingsChildren.filter(c => c.trim()).length) {
+          alert('Please fill in all required fields and at least one child name');
+          return;
+        }
+        const cleanedChildren = settingsChildren.filter(c => c.trim());
+        setParent1Name(settingsParent1Name);
+        setParent2Name(settingsParent2Name);
+        setParent1Email(settingsParent1Email);
+        setParent2Email(settingsParent2Email);
+        setChildren(cleanedChildren);
+        
+        if (currentUser === parent1Email && currentUser !== settingsParent1Email) {
+          setCurrentUser(settingsParent1Email);
+        } else if (currentUser === parent2Email && currentUser !== settingsParent2Email) {
+          setCurrentUser(settingsParent2Email);
+        }
+
+        saveData(expenses, recurringRules);
+        setShowSettingsModal(false);
+      };
+
+      const addChild = () => {
+        if (settingsChildren.length < 4) {
+          setSettingsChildren([...settingsChildren, '']);
+        }
+      };
+
+      const removeChild = (index) => {
+        setSettingsChildren(settingsChildren.filter((_, i) => i !== index));
+      };
+
+      const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setFormReceipt(event.target.result);
+            setFormReceiptName(file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleAddExpense = (e) => {
+        e.preventDefault();
+        if (!formAmount || !formPaidBy || !formChild) return;
+
+        const newExpense = {
+          id: editing || Date.now(),
+          date: formDate,
+          category: formCategory,
+          amount: parseFloat(formAmount),
+          paidBy: formPaidBy,
+          notes: formNotes,
+          receiptData: formReceipt,
+          receiptName: formReceiptName,
+          child: formChild,
+          addedBy: currentUser,
+          addedAt: new Date().toISOString()
+        };
+
+        const updated = editing
+          ? expenses.map(ex => ex.id === editing ? newExpense : ex)
+          : [...expenses, newExpense];
+
+        updated.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setExpenses(updated);
+        saveData(updated, recurringRules);
+        resetForm();
+      };
+
+      const handleAddRecurring = (e) => {
+        e.preventDefault();
+        if (!recurringAmount || !recurringPaidBy || !recurringChild) return;
+
+        const newRule = {
+          id: editingRecurring || `rule-${Date.now()}`,
+          amount: parseFloat(recurringAmount),
+          category: recurringCategory,
+          paidBy: recurringPaidBy,
+          child: recurringChild,
+          description: recurringDescription,
+          frequency: recurringFrequency,
+          startDate: recurringStartDate,
+          active: true,
+          lastGenerated: null,
+          createdBy: currentUser,
+          createdAt: new Date().toISOString()
+        };
+
+        const updated = editingRecurring
+          ? recurringRules.map(r => r.id === editingRecurring ? newRule : r)
+          : [...recurringRules, newRule];
+
+        setRecurringRules(updated);
+        saveData(expenses, updated);
+        resetRecurringForm();
+      };
+
+      const handleToggleRecurring = (ruleId) => {
+        const updated = recurringRules.map(r =>
+          r.id === ruleId ? { ...r, active: !r.active } : r
+        );
+        setRecurringRules(updated);
+        saveData(expenses, updated);
+      };
+
+      const handleDeleteRecurring = (ruleId) => {
+        const updated = recurringRules.filter(r => r.id !== ruleId);
+        setRecurringRules(updated);
+        saveData(expenses, updated);
+      };
+
+      const handleDeleteExpense = (id) => {
+        const updated = expenses.filter(ex => ex.id !== id);
+        setExpenses(updated);
+        saveData(updated, recurringRules);
+      };
+
+      const resetForm = () => {
+        setFormDate(new Date().toISOString().split('T')[0]);
+        setFormAmount('');
+        setFormCategory('activities');
+        setFormPaidBy('');
+        setFormNotes('');
+        setFormReceipt(null);
+        setFormReceiptName('');
+        setFormChild('');
+        setEditing(null);
+      };
+
+      const resetRecurringForm = () => {
+        setRecurringAmount('');
+        setRecurringCategory('activities');
+        setRecurringPaidBy('');
+        setRecurringChild('');
+        setRecurringDescription('');
+        setRecurringFrequency('monthly');
+        setRecurringStartDate(new Date().toISOString().split('T')[0]);
+        setEditingRecurring(null);
+      };
+
+      const downloadReceipt = (receiptData, fileName) => {
+        const link = document.createElement('a');
+        link.href = receiptData;
+        link.download = fileName || 'receipt';
+        link.click();
+      };
+
+      const handleLogout = () => {
+        setCurrentUser('');
+        setLoginEmail('');
+      };
+
+      const totalPaidByParent1 = expenses.filter(ex => ex.paidBy === parent1Name).reduce((sum, ex) => sum + ex.amount, 0);
+      const totalPaidByParent2 = expenses.filter(ex => ex.paidBy === parent2Name).reduce((sum, ex) => sum + ex.amount, 0);
+      const difference = totalPaidByParent1 - totalPaidByParent2;
+      
+      let debtorName = '';
+      let debtAmount = 0;
+      if (Math.abs(difference) > 0.01) {
+        if (difference > 0) {
+          debtorName = parent2Name;
+          debtAmount = Math.abs(difference) / 2;
+        } else {
+          debtorName = parent1Name;
+          debtAmount = Math.abs(difference) / 2;
+        }
+      }
+
+      const recordPayment = () => {
+        const newPayment = {
+          id: Date.now(),
+          from: debtorName,
+          to: debtorName === parent1Name ? parent2Name : parent1Name,
+          amount: debtAmount,
+          status: 'completed',
+          method: 'paypal',
+          createdAt: new Date().toISOString()
+        };
+        setPayments([...payments, newPayment]);
+        saveData(expenses, recurringRules);
+      };
+
+      const categoryEmoji = { school: '🎓', medical: '🏥', activities: '⚽', gifts: '🎁' };
+      const getCurrentUserName = () => currentUser === parent1Email ? parent1Name : parent2Name;
+
+      if (!setupDone && !currentUser) {
+        return (
+          <div className="login-form">
+            <h2>Family Expense Tracker</h2>
+            <form onSubmit={handleLogin}>
+              <div className="form-group">
+                <label>Email address</label>
+                <input 
+                  type="email" 
+                  value={loginEmail} 
+                  onChange={(e) => { setLoginEmail(e.target.value); setLoginError(''); }}
+                  placeholder="Enter your email"
+                  autoFocus
+                />
+              </div>
+              {loginError && <div className="login-error">{loginError}</div>}
+              <button type="submit" className="primary" style={{ width: '100%' }}>Continue</button>
+            </form>
+          </div>
+        );
+      }
+
+      if (!setupDone && parent1Email && !currentUser) {
+        return (
+          <div className="container">
+            <div className="setup-form">
+              <h2>Complete setup</h2>
+              <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>Setting up for {parent1Email}</p>
+              
+              <h3>Parent 1</h3>
+              <div className="form-group">
+                <label>Name</label>
+                <input type="text" value={parent1Name} onChange={(e) => setParent1Name(e.target.value)} placeholder="e.g., Sarah" />
+              </div>
+
+              <h3>Parent 2</h3>
+              <div className="form-group">
+                <label>Name</label>
+                <input type="text" value={parent2Name} onChange={(e) => setParent2Name(e.target.value)} placeholder="e.g., James" />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" value={parent2Email} onChange={(e) => setParent2Email(e.target.value)} placeholder="james@example.com" />
+              </div>
+
+              <h3>Children</h3>
+              <div className="children-list">
+                {children.map((child, index) => (
+                  <div key={index} className="child-input-group">
+                    <input 
+                      type="text" 
+                      value={child} 
+                      onChange={(e) => {
+                        const updated = [...children];
+                        updated[index] = e.target.value;
+                        setChildren(updated);
+                      }}
+                      placeholder={`Child ${index + 1} name`}
+                    />
+                    {children.length > 1 && (
+                      <button className="danger" type="button" onClick={() => setChildren(children.filter((_, i) => i !== index))}>Remove</button>
+                    )}
+                  </div>
+                ))}
+                {children.length < 4 && (
+                  <button className="add-child-btn" type="button" onClick={() => setChildren([...children, ''])}>+ Add Child</button>
+                )}
+              </div>
+
+              <button className="primary" onClick={handleSetupComplete} style={{ width: '100%', marginTop: '20px' }}>Complete Setup</button>
+            </div>
+          </div>
+        );
+      }
+
+      if (setupDone && !currentUser) {
+        return (
+          <div className="login-form">
+            <h2>Welcome back</h2>
+            <form onSubmit={handleLogin}>
+              <div className="form-group">
+                <label>Email address</label>
+                <input 
+                  type="email" 
+                  value={loginEmail} 
+                  onChange={(e) => { setLoginEmail(e.target.value); setLoginError(''); }}
+                  placeholder="Enter your email"
+                  autoFocus
+                />
+              </div>
+              {loginError && <div className="login-error">{loginError}</div>}
+              <button type="submit" className="primary" style={{ width: '100%' }}>Login</button>
+            </form>
+          </div>
+        );
+      }
+
+      if (showSettingsModal) {
+        return (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h2>Settings</h2>
+              
+              <h3>Parent 1</h3>
+              <div className="form-group">
+                <label>Name</label>
+                <input type="text" value={settingsParent1Name} onChange={(e) => setSettingsParent1Name(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" value={settingsParent1Email} onChange={(e) => setSettingsParent1Email(e.target.value)} />
+              </div>
+
+              <h3>Parent 2</h3>
+              <div className="form-group">
+                <label>Name</label>
+                <input type="text" value={settingsParent2Name} onChange={(e) => setSettingsParent2Name(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" value={settingsParent2Email} onChange={(e) => setSettingsParent2Email(e.target.value)} />
+              </div>
+
+              <h3>Children</h3>
+              <div className="children-list">
+                {settingsChildren.map((child, index) => (
+                  <div key={index} className="child-input-group">
+                    <input 
+                      type="text" 
+                      value={child} 
+                      onChange={(e) => {
+                        const updated = [...settingsChildren];
+                        updated[index] = e.target.value;
+                        setSettingsChildren(updated);
+                      }}
+                      placeholder={`Child ${index + 1} name`}
+                    />
+                    {settingsChildren.length > 1 && (
+                      <button className="danger" type="button" onClick={() => removeChild(index)}>Remove</button>
+                    )}
+                  </div>
+                ))}
+                {settingsChildren.length < 4 && (
+                  <button className="add-child-btn" type="button" onClick={addChild}>+ Add Child</button>
+                )}
+              </div>
+
+              <div className="modal-buttons">
+                <button onClick={() => setShowSettingsModal(false)}>Cancel</button>
+                <button className="primary" onClick={handleSaveSettings}>Save</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="container">
+          <div className="top-bar">
+            <div className="top-bar-left">
+              <h2>Family Expense Tracker</h2>
+              <p>Welcome, {getCurrentUserName()}</p>
+            </div>
+            <div className="top-bar-right">
+              <button className="edit-btn" onClick={openSettingsModal}>Edit</button>
+              <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            </div>
+          </div>
+
+          <div className="tabs">
+            {['expenses', 'recurring', 'payments'].map(tab => (
+              <button
+                key={tab}
+                className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'expenses' && (
+            <>
+              {expenses.length > 0 && (
+                <div className="balance-card">
+                  <div className="balance-row">
+                    <div>
+                      <div className="balance-label">{parent1Name} paid</div>
+                      <div className="balance-amount">${totalPaidByParent1.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div className="balance-label">{parent2Name} paid</div>
+                      <div className="balance-amount">${totalPaidByParent2.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  {debtAmount > 0.01 ? (
+                    <div className="warning-banner">{debtorName} owes ${debtAmount.toFixed(2)}</div>
+                  ) : (
+                    <div className="success-banner">✓ All settled up!</div>
+                  )}
+                </div>
+              )}
+
+              <div className="card">
+                <h3>Add one-time expense</h3>
+                <form onSubmit={handleAddExpense}>
+                  <div className="grid-2">
+                    <div className="form-group">
+                      <label>Date</label>
+                      <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label>Child</label>
+                      <select value={formChild} onChange={(e) => setFormChild(e.target.value)}>
+                        <option value="">Select child</option>
+                        {children.map((child, i) => <option key={i} value={child}>{child}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid-2">
+                    <div className="form-group">
+                      <label>Category</label>
+                      <select value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
+                        <option value="school">🎓 School</option>
+                        <option value="medical">🏥 Medical</option>
+                        <option value="activities">⚽ Activities</option>
+                        <option value="gifts">🎁 Gifts</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Amount</label>
+                      <input type="number" step="0.01" min="0" value={formAmount} onChange={(e) => setFormAmount(e.target.value)} placeholder="0.00" />
+                      <div className="helper-text">Input the total amount paid and we will calculate the total amount your co-parent owes</div>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Paid by</label>
+                    <select value={formPaidBy} onChange={(e) => setFormPaidBy(e.target.value)}>
+                      <option value="">Select parent</option>
+                      <option value={parent1Name}>{parent1Name}</option>
+                      <option value={parent2Name}>{parent2Name}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea value={formNotes} onChange={(e) => setFormNotes(e.target.value)} placeholder="e.g., Soccer registration, details, etc." />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Receipt (optional)</label>
+                    <input type="file" accept="image/*,.pdf" onChange={handleFileUpload} />
+                    {formReceiptName && (
+                      <div className="receipt-preview">
+                        📎 {formReceiptName}
+                        <button type="button" onClick={() => { setFormReceipt(null); setFormReceiptName(''); }} style={{ padding: '2px 6px', fontSize: '11px', background: 'transparent', border: 'none', color: '#999', cursor: 'pointer' }}>Remove</button>
+                      </div>
+                    )}
+                  </div>
+
+                  <button type="submit" className="primary" style={{ width: '100%' }}>{editing ? 'Update' : 'Add expense'}</button>
+                </form>
+              </div>
+
+              <h3>All expenses</h3>
+              {expenses.length === 0 ? (
+                <p style={{ color: '#999' }}>No expenses yet</p>
+              ) : (
+                expenses.map(ex => (
+                  <div key={ex.id} className="expense-item">
+                    <div className="expense-content">
+                      <div className="expense-title">{categoryEmoji[ex.category]} ${ex.amount.toFixed(2)} • {ex.paidBy} • {ex.child}</div>
+                      {ex.notes && ex.notes !== 'Auto-generated from recurring rule' && <div className="expense-desc">{ex.notes}</div>}
+                      {ex.notes === 'Auto-generated from recurring rule' && <div className="expense-desc" style={{ fontStyle: 'italic' }}>Auto-recurring</div>}
+                      {ex.receiptName && (
+                        <div className="receipt-preview">
+                          📎 <a onClick={() => downloadReceipt(ex.receiptData, ex.receiptName)}>Download receipt</a>
+                        </div>
+                      )}
+                      <div className="expense-date">{new Date(ex.date).toLocaleDateString()}</div>
+                    </div>
+                    <div className="expense-actions">
+                      <button onClick={() => { setEditing(ex.id); setFormDate(ex.date); setFormAmount(ex.amount.toString()); setFormCategory(ex.category); setFormPaidBy(ex.paidBy); setFormNotes(ex.notes); setFormReceipt(ex.receiptData); setFormReceiptName(ex.receiptName); setFormChild(ex.child); }}>Edit</button>
+                      <button className="danger" onClick={() => handleDeleteExpense(ex.id)}>Delete</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          )}
+
+          {activeTab === 'recurring' && (
+            <>
+              <div className="card">
+                <h3>Create recurring expense</h3>
+                <form onSubmit={handleAddRecurring}>
+                  <div className="grid-2">
+                    <div className="form-group">
+                      <label>Amount</label>
+                      <input type="number" step="0.01" min="0" value={recurringAmount} onChange={(e) => setRecurringAmount(e.target.value)} placeholder="0.00" />
+                    </div>
+                    <div className="form-group">
+                      <label>Frequency</label>
+                      <select value={recurringFrequency} onChange={(e) => setRecurringFrequency(e.target.value)}>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid-2">
+                    <div className="form-group">
+                      <label>Start date</label>
+                      <input type="date" value={recurringStartDate} onChange={(e) => setRecurringStartDate(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label>Child</label>
+                      <select value={recurringChild} onChange={(e) => setRecurringChild(e.target.value)}>
+                        <option value="">Select child</option>
+                        {children.map((child, i) => <option key={i} value={child}>{child}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid-2">
+                    <div className="form-group">
+                      <label>Category</label>
+                      <select value={recurringCategory} onChange={(e) => setRecurringCategory(e.target.value)}>
+                        <option value="school">🎓 School</option>
+                        <option value="medical">🏥 Medical</option>
+                        <option value="activities">⚽ Activities</option>
+                        <option value="gifts">🎁 Gifts</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Paid by</label>
+                      <select value={recurringPaidBy} onChange={(e) => setRecurringPaidBy(e.target.value)}>
+                        <option value="">Select parent</option>
+                        <option value={parent1Name}>{parent1Name}</option>
+                        <option value={parent2Name}>{parent2Name}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Description (optional)</label>
+                    <input type="text" value={recurringDescription} onChange={(e) => setRecurringDescription(e.target.value)} placeholder="e.g., Monthly piano lessons" />
+                  </div>
+
+                  <button type="submit" className="primary" style={{ width: '100%' }}>{editingRecurring ? 'Update rule' : 'Create rule'}</button>
+                </form>
+              </div>
+
+              <h3>Active rules</h3>
+              {recurringRules.length === 0 ? (
+                <p style={{ color: '#999' }}>No recurring rules yet</p>
+              ) : (
+                recurringRules.map(rule => (
+                  <div key={rule.id} className="expense-item">
+                    <div className="expense-content">
+                      <div className="expense-title">{categoryEmoji[rule.category]} ${rule.amount.toFixed(2)} {rule.frequency} • {rule.paidBy} • {rule.child}</div>
+                      {rule.description && <div className="expense-desc">{rule.description}</div>}
+                      <div className="expense-date">Starts {new Date(rule.startDate).toLocaleDateString()}</div>
+                    </div>
+                    <div className="expense-actions">
+                      <button className={rule.active ? 'success' : ''} onClick={() => handleToggleRecurring(rule.id)}>{rule.active ? 'Pause' : 'Resume'}</button>
+                      <button onClick={() => { setEditingRecurring(rule.id); setRecurringAmount(rule.amount.toString()); setRecurringCategory(rule.category); setRecurringPaidBy(rule.paidBy); setRecurringChild(rule.child); setRecurringDescription(rule.description); setRecurringFrequency(rule.frequency); setRecurringStartDate(rule.startDate); }}>Edit</button>
+                      <button className="danger" onClick={() => handleDeleteRecurring(rule.id)}>Delete</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          )}
+
+          {activeTab === 'payments' && (
+            <>
+              {debtAmount > 0.01 && (
+                <div className="card">
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Amount owed</div>
+                    <div style={{ fontSize: '18px', fontWeight: '500' }}>${debtAmount.toFixed(2)}</div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>{debtorName} → {debtorName === parent1Name ? parent2Name : parent1Name}</div>
+                  </div>
+                  <a href={`https://www.paypal.com/paypalme/${debtorName === parent1Name ? parent2Name.replace(/\s+/g, '').toLowerCase() : parent1Name.replace(/\s+/g, '').toLowerCase()}/${debtAmount.toFixed(2)}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '10px', background: '#0070ba', color: 'white', border: 'none', border Radius: '8px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', textAlign: 'center', textDecoration: 'none', marginBottom: '8px' }}>Pay with PayPal.Me</a>
+                  <button className="success" onClick={() => recordPayment()} style={{ width: '100%' }}>Mark payment as complete</button>
+                </div>
+              )}
+
+              <h3>Payment history</h3>
+              {payments.length === 0 ? (
+                <p style={{ color: '#999' }}>No payments recorded</p>
+              ) : (
+                payments.map(p => (
+                  <div key={p.id} className="expense-item">
+                    <div className="expense-content">
+                      <div className="expense-title">{p.from} → {p.to}</div>
+                      <div className="expense-desc">${p.amount.toFixed(2)}</div>
+                      <div className="expense-date">{new Date(p.createdAt).toLocaleDateString()}</div>
+                    </div>
+                    <div style={{ padding: '4px 8px', background: p.status === 'completed' ? '#a5d5a5' : '#fff3cd', color: p.status === 'completed' ? '#004d00' : '#856404', borderRadius: '6px', fontSize: '10px', fontWeight: '500' }}>
+                      {p.status === 'completed' ? '✓ Paid' : 'Pending'}
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
