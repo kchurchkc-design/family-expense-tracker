@@ -485,23 +485,29 @@
       if (page === 'dashboard') {
         return (
           <div className="container">
-            <div className="top-bar">
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', gap: '8px' }}>
-                  <div> 
-                    <h2>Family Expense Tracker</h2>
-                    <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
-                  </div>
-              <div className="gear-menu">
-                <button className="gear-btn" onClick={() => setShowGearMenu(!showGearMenu)}>⋮</button>
-                {showGearMenu && (
-                  <div className="gear-dropdown">
-                    <button onClick={() => { setShowSettingsModal(true); setShowGearMenu(false); }}>Edit Settings</button>
-                    <button onClick={() => { handleLogout(); setShowGearMenu(false); }}>Logout</button>
-                  </div>
-                )}
-              </div>
-            </div>
+           <div className="top-bar">
+             <div style={{ width: '100%' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                 <div>
+                   <h2>Family Expense Tracker</h2>
+                   <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
+                 </div>
+                 <div className="desktop-buttons">
+                   <button onClick={() => setShowSettingsModal(true)}>Edit</button>
+                   <button onClick={handleLogout}>Logout</button>
+                 </div>
+                 <div className="gear-menu">
+                   <button className="gear-btn" onClick={() => setShowGearMenu(!showGearMenu)}>⋮</button>
+                   {showGearMenu && (
+                      <div className="gear-dropdown">
+                        <button onClick={() => { setShowSettingsModal(true); setShowGearMenu(false); }}>Edit Settings</button>
+                        <button onClick={() => { handleLogout(); setShowGearMenu(false); }}>Logout</button>
+                      </div>
+                    )}
+                 </div>
+               </div>
+             </div>
+           </div>
 
             <div className="tabs">
               <button className={`tab-btn ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>Expenses</button>
