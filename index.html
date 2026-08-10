@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Expense Tracker</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 13px; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
+    button { padding: 10px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; background: white; }
+    button.primary { background: #5c6ac4; color: white; border-color: #5c6ac4; }
+    button.danger { background: #f5a5a5; color: #8b0000; }
+    button.success { background: #a5d5a5; color: #004d00; }
+    h2 { font-size: 18px; font-weight: 500; margin-bottom: 16px; }
+    h3 { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+    .card { background: white; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .login-form { max-width: 400px; margin: 60px auto; }
+    .setup-form { max-width: 500px; margin: 0 auto; }
+    .balance-card { background: white; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .error { color: #8b0000; font-size: 12px; margin-bottom: 12px; }
+    .success-msg { color: #155724; font-size: 12px; margin-bottom: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .children-list { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .child-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-end; }
+    .child-input-group input { flex: 1; margin-bottom: 0; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 0.5px solid #e0e0e0; padding-bottom: 8px; }
+    .tab-btn { padding: 8px 12px; background: transparent; border: none; cursor: pointer; font-size: 13px; color: #666; }
+    .tab-btn.active { background: white; border: 0.5px solid #ccc; border-radius: 6px; color: #1a1a1a; font-weight: 500; }
+    .expense-item { background: white; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+    .helper-text { font-size: 11px; color: #999; font-style: italic; margin-top: 4px; }
+    .helper-note { font-size: 12px; color: #666; margin-bottom: 12px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [page, setPage] = useState('loading'); // loading, login, setup, dashboard
+      const [expenses, setExpenses] = useState([]);
+      const [payments, setPayments] = useState([]);
+      const [recurringRules, setRecurringRules] = useState([]);
+      
+      const [parent1Name, setParent1Name] = useState('');
+      const [parent2Name, setParent2Name] = useState('');
+      const [parent1Email, setParent1Email] = useState('');
+      const [parent2Email, setParent2Email] = useState('');
+      const [children, setChildren] = useState(['']);
+      
+      const [currentUserEmail, setCurrentUserEmail] = useState('');
+      const [loginEmail, setLoginEmail] = useState('');
+      const [loginError, setLoginError] = useState('');
+      
+      const [showSettingsModal, setShowSettingsModal] = useState(false);
+      const [activeTab, setActiveTab] = useState('expenses');
+
+      // Load data on mount
+      useEffect(() => {
+        const saved = localStorage.getItem('coparenting:v3');
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            setParent1Name(data.parent1Name || '');
+            setParent2Name(data.parent2Name || '');
+            setParent1Email(data.parent1Email || '');
+            setParent2Email(data.parent2Email || '');
+            setChildren(data.children || ['']);
+            setExpenses(data.expenses || []);
+            setPayments(data.payments || []);
+            setRecurringRules(data.recurringRules || []);
+            setPage('login');
+          } catch (e) {
+            console.error('Load error:', e);
+            setPage('login');
+          }
+        } else {
+          setPage('login');
+        }
+      }, []);
+
+      const saveData = () => {
+        localStorage.setItem('coparenting:v3', JSON.stringify({
+          parent1Name,
+          parent2Name,
+          parent1Email,
+          parent2Email,
+          children,
+          expenses,
+          payments,
+          recurringRules
+        }));
+      };
+
+      const handleLoginSubmit = (e) => {
+        e.preventDefault();
+        setLoginError('');
+
+        if (!loginEmail) {
+          setLoginError('Please enter your email');
+          return;
+        }
+
+        // Check if this email is a known parent
+        if (loginEmail === parent1Email || loginEmail === parent2Email) {
+          // Known user - log them in
+          setCurrentUserEmail(loginEmail);
+          setPage('dashboard');
+        } else if (parent1Email === '' && parent2Email === '') {
+          // First time setup
+          setParent1Email(loginEmail);
+          setPage('setup');
+        } else {
+          // Email not recognized
+          setLoginError('Email not recognized. Please check and try again.');
+        }
+      };
+
+      const handleSetupSubmit = (e) => {
+        e.preventDefault();
+        
+        if (!parent1Name || !parent2Name || !parent2Email || !children.filter(c => c.trim()).length) {
+          alert('Please fill in all required fields');
+          return;
+        }
+
+        const cleanChildren = children.filter(c => c.trim());
+        setChildren(cleanChildren);
+        setCurrentUserEmail(parent1Email);
+        saveData();
+        setPage('dashboard');
+      };
+
+      const handleLogout = () => {
+        setCurrentUserEmail('');
+        setLoginEmail('');
+        setLoginError('');
+        setPage('login');
+      };
+
+      // LOGIN PAGE
+      if (page === 'login') {
+        return (
+          <div className="login-form">
+            <h2>Family Expense Tracker</h2>
+            <form onSubmit={handleLoginSubmit}>
+              <label>Email address</label>
+              <input 
+                type="email" 
+                value={loginEmail} 
+                onChange={(e) => { setLoginEmail(e.target.value); setLoginError(''); }}
+                placeholder="Enter your email"
+                autoFocus
+              />
+              {loginError && <div className="error">{loginError}</div>}
+              <button type="submit" className="primary" style={{ width: '100%' }}>Continue</button>
+            </form>
+          </div>
+        );
+      }
+
+      // SETUP PAGE
+      if (page === 'setup') {
+        return (
+          <div className="container">
+            <div className="setup-form">
+              <h2>Complete setup</h2>
+              <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>Setting up for {parent1Email}</p>
+              
+              <h3>Parent 1</h3>
+              <label>Name</label>
+              <input type="text" value={parent1Name} onChange={(e) => setParent1Name(e.target.value)} placeholder="e.g., Sarah" />
+
+              <h3>Parent 2</h3>
+              <label>Name</label>
+              <input type="text" value={parent2Name} onChange={(e) => setParent2Name(e.target.value)} placeholder="e.g., James" />
+              <label>Email</label>
+              <input type="email" value={parent2Email} onChange={(e) => setParent2Email(e.target.value)} placeholder="james@example.com" />
+
+              <h3>Children</h3>
+              <div className="children-list">
+                {children.map((child, i) => (
+                  <div key={i} className="child-input-group">
+                    <input 
+                      type="text" 
+                      value={child} 
+                      onChange={(e) => { const u = [...children]; u[i] = e.target.value; setChildren(u); }}
+                      placeholder={`Child ${i + 1}`}
+                    />
+                    {children.length > 1 && (
+                      <button className="danger" type="button" onClick={() => setChildren(children.filter((_, idx) => idx !== i))}>Remove</button>
+                    )}
+                  </div>
+                ))}
+                {children.length < 4 && (
+                  <button type="button" onClick={() => setChildren([...children, ''])}>+ Add Child</button>
+                )}
+              </div>
+
+              <button className="primary" onClick={handleSetupSubmit} style={{ width: '100%' }}>Complete Setup</button>
+            </div>
+          </div>
+        );
+      }
+
+      // DASHBOARD PAGE
+      if (page === 'dashboard') {
+        const currentName = currentUserEmail === parent1Email ? parent1Name : parent2Name;
+
+        return (
+          <div className="container">
+            <div className="top-bar">
+              <h2>Family Expense Tracker</h2>
+              <div>
+                <button onClick={() => setShowSettingsModal(true)}>Edit</button>
+                <button onClick={handleLogout} style={{ marginLeft: '8px' }}>Logout</button>
+              </div>
+            </div>
+            <p style={{ marginBottom: '16px' }}>Welcome, {currentName}</p>
+
+            <div className="tabs">
+              <button className={`tab-btn ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>Expenses</button>
+              <button className={`tab-btn ${activeTab === 'recurring' ? 'active' : ''}`} onClick={() => setActiveTab('recurring')}>Recurring</button>
+              <button className={`tab-btn ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => setActiveTab('payments')}>Payments</button>
+            </div>
+
+            {activeTab === 'expenses' && (
+              <div className="card">
+                <h3>Expenses coming soon...</h3>
+              </div>
+            )}
+
+            {activeTab === 'recurring' && (
+              <div className="card">
+                <h3>Recurring expenses coming soon...</h3>
+              </div>
+            )}
+
+            {activeTab === 'payments' && (
+              <div className="card">
+                <h3>Payments coming soon...</h3>
+              </div>
+            )}
+
+            {showSettingsModal && (
+              <div className="modal-overlay">
+                <div className="modal">
+                  <h2>Settings</h2>
+                  <h3>Parent 1</h3>
+                  <input type="text" value={parent1Name} onChange={(e) => setParent1Name(e.target.value)} />
+                  <h3>Parent 2</h3>
+                  <input type="text" value={parent2Name} onChange={(e) => setParent2Name(e.target.value)} />
+                  <h3>Children</h3>
+                  <p className="helper-note">Edit your children's names. Note: This feature will override for both parents accounts.</p>
+                  <div className="children-list">
+                    {children.map((child, i) => (
+                      <div key={i} className="child-input-group">
+                        <input 
+                          type="text" 
+                          value={child} 
+                          onChange={(e) => { const u = [...children]; u[i] = e.target.value; setChildren(u); }}
+                          placeholder={`Child ${i + 1}`}
+                        />
+                        {children.length > 1 && (
+                          <button className="danger" onClick={() => setChildren(children.filter((_, idx) => idx !== i))}>Remove</button>
+                        )}
+                      </div>
+                    ))}
+                    {children.length < 4 && (
+                      <button onClick={() => setChildren([...children, ''])}>+ Add Child</button>
+                    )}
+                  </div>
+                  <button onClick={() => { saveData(); setShowSettingsModal(false); }} className="primary" style={{ width: '100%', marginTop: '16px' }}>Save</button>
+                  <button onClick={() => setShowSettingsModal(false)} style={{ width: '100%', marginTop: '8px' }}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      return <div className="container"><h2>Loading...</h2></div>;
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
