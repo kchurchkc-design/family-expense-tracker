@@ -37,22 +37,10 @@
       transition: all 0.2s;
     }
     button:hover { background: #f0f0f0; }
-    button.primary {
-      background: #5c6ac4;
-      color: white;
-      border-color: #5c6ac4;
-    }
+    button.primary { background: #5c6ac4; color: white; border-color: #5c6ac4; }
     button.primary:hover { background: #4c5ab4; }
-    button.danger {
-      background: #f5a5a5;
-      color: #8b0000;
-      border-color: #f5a5a5;
-    }
-    button.success {
-      background: #a5d5a5;
-      color: #004d00;
-      border-color: #a5d5a5;
-    }
+    button.danger { background: #f5a5a5; color: #8b0000; border-color: #f5a5a5; }
+    button.success { background: #a5d5a5; color: #004d00; border-color: #a5d5a5; }
     h2 { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
     h3 { font-size: 13px; font-weight: 500; margin: 12px 0 8px; }
     .card {
@@ -132,11 +120,7 @@
     .expense-title { font-weight: 500; font-size: 13px; margin-bottom: 2px; }
     .expense-desc { font-size: 11px; color: #666; margin-bottom: 2px; }
     .expense-date { font-size: 11px; color: #999; }
-    .expense-actions {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
+    .expense-actions { display: flex; gap: 4px; flex-wrap: wrap; }
     .expense-actions button { padding: 4px 8px; font-size: 11px; }
     .login-form { max-width: 400px; margin: 0 auto; padding: 40px 20px; text-align: center; }
     .login-form h2 { margin-bottom: 24px; text-align: left; }
@@ -156,36 +140,14 @@
       align-items: center;
       gap: 8px;
     }
-    .receipt-preview a {
-      color: #5c6ac4;
-      text-decoration: none;
-      cursor: pointer;
-    }
+    .receipt-preview a { color: #5c6ac4; text-decoration: none; cursor: pointer; }
     .receipt-preview a:hover { text-decoration: underline; }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .top-bar-left h2 { margin-bottom: 0; }
     .top-bar-left p { font-size: 12px; color: #666; margin: 4px 0 0 0; }
-    .top-bar-right {
-      display: flex;
-      gap: 8px;
-    }
-    .logout-btn { 
-      padding: 6px 10px; 
-      font-size: 11px; 
-      background: #f0f0f0; 
-      border: 0.5px solid #d0d0d0;
-    }
-    .edit-btn { 
-      padding: 6px 10px; 
-      font-size: 11px; 
-      background: #f0f0f0; 
-      border: 0.5px solid #d0d0d0;
-    }
+    .top-bar-right { display: flex; gap: 8px; }
+    .logout-btn { padding: 6px 10px; font-size: 11px; background: #f0f0f0; border: 0.5px solid #d0d0d0; }
+    .edit-btn { padding: 6px 10px; font-size: 11px; background: #f0f0f0; border: 0.5px solid #d0d0d0; }
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -208,11 +170,7 @@
       overflow-y: auto;
     }
     .modal h2 { margin-bottom: 16px; }
-    .modal-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 20px;
-    }
+    .modal-buttons { display: flex; gap: 8px; margin-top: 20px; }
     .modal-buttons button { flex: 1; }
     .children-list {
       background: #f9f9f9;
@@ -221,16 +179,12 @@
       padding: 12px;
       margin-bottom: 12px;
     }
-    .child-input-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      align-items: flex-end;
-    }
+    .child-input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-end; }
     .child-input-group input { flex: 1; margin-bottom: 0; }
     .child-input-group button { padding: 8px 10px; font-size: 11px; min-width: 50px; }
     .add-child-btn { margin-top: 8px; }
     .login-error { color: #8b0000; font-size: 12px; margin-bottom: 12px; }
+    .helper-note { font-size: 12px; color: #666; margin-bottom: 12px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -303,12 +257,6 @@
         loadData();
       }, []);
 
-      useEffect(() => {
-        if (expenses.length > 0 || recurringRules.length > 0) {
-          generateRecurringExpenses();
-        }
-      }, [recurringRules]);
-
       const generateRecurringExpenses = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -349,7 +297,7 @@
               category: rule.category,
               amount: rule.amount,
               paidBy: rule.paidBy,
-              notes: `Auto-generated from recurring rule`,
+              notes: 'Auto-generated from recurring rule',
               receiptData: null,
               receiptName: '',
               child: rule.child,
@@ -373,7 +321,13 @@
         }
       };
 
-      const saveData = async (updatedExpenses, updatedRecurring) => {
+      useEffect(() => {
+        if (recurringRules.length > 0) {
+          generateRecurringExpenses();
+        }
+      }, [recurringRules]);
+
+      const saveData = (updatedExpenses, updatedRecurring) => {
         try {
           localStorage.setItem('coparenting:v2', JSON.stringify({
             expenses: updatedExpenses,
@@ -446,7 +400,7 @@
         setParent1Email(settingsParent1Email);
         setParent2Email(settingsParent2Email);
         setChildren(cleanedChildren);
-        
+
         if (currentUser === parent1Email && currentUser !== settingsParent1Email) {
           setCurrentUser(settingsParent1Email);
         } else if (currentUser === parent2Email && currentUser !== settingsParent2Email) {
@@ -455,16 +409,6 @@
 
         saveData(expenses, recurringRules);
         setShowSettingsModal(false);
-      };
-
-      const addChild = () => {
-        if (settingsChildren.length < 4) {
-          setSettingsChildren([...settingsChildren, '']);
-        }
-      };
-
-      const removeChild = (index) => {
-        setSettingsChildren(settingsChildren.filter((_, i) => i !== index));
       };
 
       const handleFileUpload = (e) => {
@@ -593,7 +537,7 @@
       const totalPaidByParent1 = expenses.filter(ex => ex.paidBy === parent1Name).reduce((sum, ex) => sum + ex.amount, 0);
       const totalPaidByParent2 = expenses.filter(ex => ex.paidBy === parent2Name).reduce((sum, ex) => sum + ex.amount, 0);
       const difference = totalPaidByParent1 - totalPaidByParent2;
-      
+
       let debtorName = '';
       let debtAmount = 0;
       if (Math.abs(difference) > 0.01) {
@@ -747,7 +691,7 @@
               </div>
 
               <h3>Children</h3>
-              <p style={{ fontSize: '12px', color: '#666', marginBottom: '12px', fontStyle: 'italic' }}>Edit your children's names below. Note: This feature will override for both parents' accounts.</p>
+              <p className="helper-note">Edit your children's names. Note: This feature will override for both parents accounts.</p>
               <div className="children-list">
                 {settingsChildren.map((child, index) => (
                   <div key={index} className="child-input-group">
@@ -762,12 +706,12 @@
                       placeholder={`Child ${index + 1} name`}
                     />
                     {settingsChildren.length > 1 && (
-                      <button className="danger" type="button" onClick={() => removeChild(index)}>Remove</button>
+                      <button className="danger" type="button" onClick={() => setSettingsChildren(settingsChildren.filter((_, i) => i !== index))}>Remove</button>
                     )}
                   </div>
                 ))}
                 {settingsChildren.length < 4 && (
-                  <button className="add-child-btn" type="button" onClick={addChild}>+ Add Child</button>
+                  <button className="add-child-btn" type="button" onClick={() => setSettingsChildren([...settingsChildren, ''])}>+ Add Child</button>
                 )}
               </div>
 
