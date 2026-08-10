@@ -283,7 +283,7 @@
       useEffect(() => {
         const loadData = async () => {
           try {
-            const stored = localStorage.getItem('coparenting:enhanced');
+            const stored = localStorage.getItem('coparenting:v2');
             if (stored) {
               const data = JSON.parse(stored);
               setExpenses(data.expenses || []);
@@ -375,7 +375,7 @@
 
       const saveData = async (updatedExpenses, updatedRecurring) => {
         try {
-          localStorage.setItem('coparenting:enhanced', JSON.stringify({
+          localStorage.setItem('coparenting:v2', JSON.stringify({
             expenses: updatedExpenses,
             payments,
             recurringRules: updatedRecurring || recurringRules,
