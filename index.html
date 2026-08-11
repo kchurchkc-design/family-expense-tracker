@@ -487,11 +487,13 @@
           <div className="container">
            <div className="top-bar">
              <div style={{ width: '100%' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                  <h2 style={{ margin: 0 }}>Family Expense Tracker</h2>
-                 <div className="desktop-buttons">
-                   <button onClick={() => setShowSettingsModal(true)}>Edit</button>
-                   <button onClick={handleLogout}>Logout</button>
+                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                   <div className="desktop-buttons">
+                     <button onClick={() => setShowSettingsModal(true)}>Edit</button>
+                     <button onClick={handleLogout}>Logout</button>
+                   </div>
                  </div>
                  <div className="gear-menu">
                    <button className="gear-btn" onClick={() => setShowGearMenu(!showGearMenu)}>⋮</button>
@@ -503,8 +505,8 @@
                     )}
                  </div>
                </div>
-               <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
              </div>
+             <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0 0' }}>Welcome, {currentName}</p>
            </div>
 
             <div className="tabs">
